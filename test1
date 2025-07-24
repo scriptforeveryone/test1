@@ -1,0 +1,97 @@
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local player = Players.LocalPlayer
+
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "DarkSpawnerUI"
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = player:WaitForChild("PlayerGui")
+
+-- Main Frame (smaller & centered)
+local MainFrame = Instance.new("Frame")
+MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
+MainFrame.Size = UDim2.new(0.6, 0, 0.4, 0) -- smaller for mobile/pc
+MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+MainFrame.BorderSizePixel = 0
+MainFrame.Parent = ScreenGui
+
+-- Top Bar
+local TopBar = Instance.new("Frame")
+TopBar.Size = UDim2.new(1, 0, 0.12, 0)
+TopBar.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+TopBar.BorderSizePixel = 0
+TopBar.Parent = MainFrame
+
+-- Title Text
+local Title = Instance.new("TextLabel")
+Title.Text = "Dark Spawner"
+Title.Font = Enum.Font.SourceSansSemibold
+Title.TextSize = 18
+Title.TextColor3 = Color3.fromRGB(240, 240, 240)
+Title.BackgroundTransparency = 1
+Title.Position = UDim2.new(0, 10, 0, 0)
+Title.Size = UDim2.new(0.7, 0, 1, 0)
+Title.TextXAlignment = Enum.TextXAlignment.Left
+Title.Parent = TopBar
+
+-- Icon Buttons
+local IconContainer = Instance.new("Frame")
+IconContainer.Size = UDim2.new(0, 85, 1, 0)
+IconContainer.Position = UDim2.new(1, -90, 0, 0)
+IconContainer.BackgroundTransparency = 1
+IconContainer.Parent = TopBar
+
+local Layout = Instance.new("UIListLayout")
+Layout.FillDirection = Enum.FillDirection.Horizontal
+Layout.HorizontalAlignment = Enum.HorizontalAlignment.Right
+Layout.VerticalAlignment = Enum.VerticalAlignment.Center
+Layout.Padding = UDim.new(0, 6)
+Layout.Parent = IconContainer
+
+local function createIconButton(parent, assetId, onClick)
+local button = Instance.new("ImageButton")
+button.Image = "rbxassetid://" .. assetId
+button.BackgroundTransparency = 1
+button.Size = UDim2.new(0, 14, 0, 14)
+button.ImageColor3 = Color3.fromRGB(255, 255, 255)
+button.Parent = parent
+button.MouseButton1Click:Connect(onClick)
+end
+
+createIconButton(IconContainer, "7733960981", function()
+print("Search clicked")
+end)
+
+createIconButton(IconContainer, "6031280882", function()
+print("Settings clicked")
+end)
+
+createIconButton(IconContainer, "6031094678", function()
+ScreenGui:Destroy()
+end)
+
+-- Dragging
+local function makeDraggable(frame, handle)
+local dragging, dragInput, dragStart, startPos = false
+
+handle.InputBegan:Connect(function(input)
+if input.UserInputType == Enum.UserInputType.MouseButton1 then
+dragging = true
+dragStart = input.Position
+startPos = frame.Position
+
+input.Changed:Connect(function()
+if input.UserInputState == Enum.UserInputState.End then
+dragging = false
+end
+end)
+end
+end)
+
+handle.InputChanged:Connect(function(input)
+if input.UserInputType == Enum.UserInputType.MouseMovement then
+dragInput = input
+end
+end)
