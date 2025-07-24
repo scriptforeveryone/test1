@@ -51,47 +51,164 @@ Layout.Padding = UDim.new(0, 6)
 Layout.Parent = IconContainer
 
 local function createIconButton(parent, assetId, onClick)
-local button = Instance.new("ImageButton")
-button.Image = "rbxassetid://" .. assetId
-button.BackgroundTransparency = 1
-button.Size = UDim2.new(0, 14, 0, 14)
-button.ImageColor3 = Color3.fromRGB(255, 255, 255)
-button.Parent = parent
-button.MouseButton1Click:Connect(onClick)
+	local button = Instance.new("ImageButton")
+	button.Image = "rbxassetid://" .. assetId
+	button.BackgroundTransparency = 1
+	button.Size = UDim2.new(0, 14, 0, 14)
+	button.ImageColor3 = Color3.fromRGB(255, 255, 255)
+	button.Parent = parent
+	button.MouseButton1Click:Connect(onClick)
 end
 
 createIconButton(IconContainer, "7733960981", function()
-print("Search clicked")
+	print("Search clicked")
 end)
 
 createIconButton(IconContainer, "6031280882", function()
-print("Settings clicked")
+	print("Settings clicked")
 end)
 
 createIconButton(IconContainer, "6031094678", function()
-ScreenGui:Destroy()
+	ScreenGui:Destroy()
 end)
 
 -- Dragging
 local function makeDraggable(frame, handle)
-local dragging, dragInput, dragStart, startPos = false
+	local dragging, dragInput, dragStart, startPos = false
 
-handle.InputBegan:Connect(function(input)
-if input.UserInputType == Enum.UserInputType.MouseButton1 then
-dragging = true
-dragStart = input.Position
-startPos = frame.Position
+	handle.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 then
+			dragging = true
+			dragStart = input.Position
+			startPos = frame.Position
 
-input.Changed:Connect(function()
-if input.UserInputState == Enum.UserInputState.End then
-dragging = false
-end
-end)
-end
-end)
+			input.Changed:Connect(function()
+				if input.UserInputState == Enum.UserInputState.End then
+					dragging = false
+				end
+			end)
+		end
+	end)
 
-handle.InputChanged:Connect(function(input)
-if input.UserInputType == Enum.UserInputType.MouseMovement then
-dragInput = input
+	handle.InputChanged:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseMovement then
+			dragInput = input
+		end
+	end)
+
+	UserInputService.InputChanged:Connect(function(input)
+		if dragging and input == dragInput then
+			local delta = input.Position - dragStart
+			frame.Position = UDim2.new(
+				startPos.X.Scale,
+				startPos.X.Offset + delta.X,
+				startPos.Y.Scale,
+				startPos.Y.Offset + delta.Y
+			)
+		end
+	end)
 end
+
+if not UserInputService.TouchEnabled then
+	makeDraggable(MainFrame, TopBar)
+end
+
+-- Pet Seed Area
+local PetSeedFrame = Instance.new("Frame")
+PetSeedFrame.Size = UDim2.new(0.9, 0, 0.55, 0)
+PetSeedFrame.Position = UDim2.new(0.05, 0, 0.25, 0)
+PetSeedFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+PetSeedFrame.BorderSizePixel = 0
+PetSeedFrame.Parent = MainFrame
+
+-- Title
+local PetSeedTitle = Instance.new("TextLabel")
+PetSeedTitle.Text = "Pet & Seed Spawner  |  New Update"
+PetSeedTitle.Font = Enum.Font.SourceSansSemibold
+PetSeedTitle.TextSize = 16
+PetSeedTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+PetSeedTitle.BackgroundTransparency = 1
+PetSeedTitle.Position = UDim2.new(0, 0, 0.05, 0)
+PetSeedTitle.Size = UDim2.new(1, 0, 0.15, 0)
+PetSeedTitle.TextXAlignment = Enum.TextXAlignment.Center
+PetSeedTitle.Parent = PetSeedFrame
+
+-- Dupe Button
+local DupeButton = Instance.new("TextButton")
+DupeButton.Text = "Generate Dupe Script"
+DupeButton.Font = Enum.Font.SourceSansBold
+DupeButton.TextSize = 14
+DupeButton.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
+DupeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+DupeButton.Size = UDim2.new(1, 0, 0.2, 0)
+DupeButton.Position = UDim2.new(0, 0, 0.25, 0)
+DupeButton.Parent = PetSeedFrame
+
+-- Loading Bar Background
+local LoadingBarBack = Instance.new("Frame")
+LoadingBarBack.Size = UDim2.new(1, 0, 0.08, 0)
+LoadingBarBack.Position = UDim2.new(0, 0, 0.48, 0)
+LoadingBarBack.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+LoadingBarBack.BorderSizePixel = 0
+LoadingBarBack.Parent = PetSeedFrame
+
+-- Fill
+local LoadingBarFill = Instance.new("Frame")
+LoadingBarFill.Size = UDim2.new(0, 0, 1, 0)
+LoadingBarFill.BackgroundColor3 = Color3.fromRGB(0, 200, 255)
+LoadingBarFill.BorderSizePixel = 0
+LoadingBarFill.Parent = LoadingBarBack
+
+-- Loading Percent (inside bar)
+local LoadingPercent = Instance.new("TextLabel")
+LoadingPercent.Text = "0%"
+LoadingPercent.Font = Enum.Font.SourceSansBold
+LoadingPercent.TextSize = 14
+LoadingPercent.TextColor3 = Color3.fromRGB(255, 255, 255)
+LoadingPercent.BackgroundTransparency = 1
+LoadingPercent.AnchorPoint = Vector2.new(1, 0.5)
+LoadingPercent.Position = UDim2.new(1, -5, 0.5, 0)
+LoadingPercent.Size = UDim2.new(0, 40, 0, 20)
+LoadingPercent.TextXAlignment = Enum.TextXAlignment.Right
+LoadingPercent.Visible = false
+LoadingPercent.Parent = LoadingBarFill
+
+-- Sub Text (left)
+local SubText = Instance.new("TextLabel")
+SubText.Text = "While waiting, you can use this script 👉"
+SubText.Font = Enum.Font.SourceSans
+SubText.TextSize = 14
+SubText.TextColor3 = Color3.fromRGB(255, 255, 0)
+SubText.BackgroundTransparency = 1
+SubText.Position = UDim2.new(0, 0, 0.85, 0)
+SubText.Size = UDim2.new(0.6, 0, 0.1, 0)
+SubText.TextXAlignment = Enum.TextXAlignment.Left
+SubText.Parent = PetSeedFrame
+
+-- No-Lag Button (right)
+local NoLagButton = Instance.new("TextButton")
+NoLagButton.Text = "NO-Lag Script"
+NoLagButton.Font = Enum.Font.SourceSansBold
+NoLagButton.TextSize = 14
+NoLagButton.BackgroundColor3 = Color3.fromRGB(0, 140, 255)
+NoLagButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+NoLagButton.Size = UDim2.new(0.4, 0, 0.1, 0)
+NoLagButton.Position = UDim2.new(0.6, 0, 0.85, 0)
+NoLagButton.Parent = PetSeedFrame
+
+-- Loading Animation
+DupeButton.MouseButton1Click:Connect(function()
+	LoadingBarFill.Size = UDim2.new(0, 0, 1, 0)
+	LoadingPercent.Visible = true
+	LoadingPercent.Text = "0%"
+
+	local totalTime = math.random(60, 90)
+	for i = 0, 100 do
+		LoadingBarFill.Size = UDim2.new(i / 100, 0, 1, 0)
+		LoadingBarFill.BackgroundColor3 = Color3.fromHSV(i / 100, 1, 1)
+		LoadingPercent.Text = i .. "%"
+		wait(totalTime / 100)
+	end
+
+	LoadingPercent.Text = "✅"
 end)
